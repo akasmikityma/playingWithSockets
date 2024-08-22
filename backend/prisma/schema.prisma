@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id       Int      @id @default(autoincrement())
+  name     String?
+  email    String   @unique
+  password String
+
+  // Relations
+  messages Message[]
+  rooms    Room[]   @relation("RoomMembers")
+}
+
+model Room {
+  id       Int      @id @default(autoincrement())
+  name     String
+
+  // Relations
+  members  User[]   @relation("RoomMembers")
+  messages Message[]
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  data      String
+  timestamp DateTime @default(now())
+
+  // Relations
+  sender   User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  senderId Int
+  room     Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  roomId   Int
+}
+
+
+//a room would have atleast 2 users and multiple messages a message would have one sender ,data ,room and timeStamp(may be)

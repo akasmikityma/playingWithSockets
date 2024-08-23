@@ -1,6 +1,8 @@
 import { data } from '@remix-run/router/dist/utils';
 import React ,{useState}from 'react'
 import axios from 'axios';
+import {toast} from 'react-toastify'
+
 import { useNavigate } from 'react-router-dom';
 const Auth = () => {
     const navigate=useNavigate();
@@ -10,13 +12,23 @@ const Auth = () => {
     const [isregistered,setIsregistered]=useState(false);
     const SIGN_or_LOGIN=async()=>{
         if(isregistered){
-            const response =await axios.post(`http://localhost:3000/user/login`,{
-                email,password
-            },{
-                withCredentials:true
-            })
-            if(response.data.msg==="welcome back bishal"){
-                navigate('/')
+            try {
+                const response = await axios.post(`http://localhost:3000/user/login`, {
+                    email, password
+                }, {
+                    withCredentials: true
+                });
+                
+                if (response.status === 200) {
+                    toast.success(response.data.msg);
+                    navigate('/');
+                }
+            } catch (error:any) {
+                if (error.response && error.response.status === 401) {
+                    toast.error("Authentication failed");
+                } else {
+                    toast.error("An unexpected error occurred");
+                }
             }
         }else{
             const response =await axios.post(`http://localhost:3000/user/signup`,{
